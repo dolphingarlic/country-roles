@@ -23,7 +23,8 @@ class CountryRoles(Cog):
                     role.name == country for role in guild_roles)
                 if not already_added:
                     await guild.create_role(name=country, colour=discord.Colour(randint(0, 0xffffff)))
-        except:
+        except e:
+            print(e)
             print('Couldn\'t add all roles :(')
 
     @command(description='Deletes all previously added country roles')
@@ -36,7 +37,8 @@ class CountryRoles(Cog):
                 lambda x: x.name in COUNTRIES, guild_roles)
             for role in added_country_roles:
                 await role.delete()
-        except:
+        except e:
+            print(e)
             print('Couldn\'t delete all roles :(')
 
     @command(description='Gives the user the specified role')
@@ -54,5 +56,6 @@ class CountryRoles(Cog):
                 user_roles.append(get(guild_roles, name=FLAGS[country]))
 
             await ctx.message.author.edit(roles=user_roles)
-        except:
+        except e:
+            print(e)
             print('Couldn\'t assign role :(')
