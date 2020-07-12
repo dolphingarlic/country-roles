@@ -54,7 +54,7 @@ class CountryRoles(Cog):
                 filter(lambda x: x.name not in COUNTRIES, ctx.message.author.roles))
 
             role = get(guild_roles, name=country)
-            if role is not None:
+            if role in COUNTRIES and role is not None:
                 user_roles.append(role)
             elif country in FLAGS:
                 user_roles.append(get(guild_roles, name=FLAGS[country]))
