@@ -22,7 +22,11 @@ class CountryRoles(Cog):
                 already_added = any(
                     role.name == country for role in guild_roles)
                 if not already_added:
-                    await guild.create_role(name=country, colour=discord.Colour(randint(0, 0xffffff)))
+                    await guild.create_role(
+                        name=country,
+                        hoist=True,
+                        colour=discord.Colour(randint(0, 0xffffff))
+                    )
         except Exception as e:
             print(e)
             print('Couldn\'t add all roles :(')
