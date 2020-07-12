@@ -56,8 +56,10 @@ class CountryRoles(Cog):
             role = get(guild_roles, name=country)
             if role is not None:
                 user_roles.append(role)
-            if country in FLAGS:
+            elif country in FLAGS:
                 user_roles.append(get(guild_roles, name=FLAGS[country]))
+            else:
+                return
 
             await ctx.message.author.edit(roles=user_roles)
         except Exception as e:
