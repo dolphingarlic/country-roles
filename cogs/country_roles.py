@@ -15,6 +15,7 @@ class CountryRoles(Cog):
     @command(description='Adds all country roles and sets up react messages')
     @has_permissions(administrator=True)
     async def start(self, ctx):
+        await ctx.send('Adding roles...')
         try:
             guild = ctx.guild
             guild_roles = await guild.fetch_roles()
@@ -27,13 +28,15 @@ class CountryRoles(Cog):
                         hoist=True,
                         colour=discord.Colour(randint(0, 0xffffff))
                     )
+            await ctx.send('Roles added! :slight_smile:')
         except Exception as e:
             print(e)
-            print('Couldn\'t add all roles :(')
+            await ctx.send('Couldn\'t add all roles :frowning:')
 
     @command(description='Deletes all previously added country roles')
     @has_permissions(administrator=True)
     async def reset(self, ctx):
+        await ctx.send('Deleting roles...')
         try:
             guild = ctx.guild
             guild_roles = await guild.fetch_roles()
@@ -41,9 +44,10 @@ class CountryRoles(Cog):
                 lambda x: x.name in COUNTRIES, guild_roles)
             for role in added_country_roles:
                 await role.delete()
+            await ctx.send('Roles deleted! :slight_smile:')
         except Exception as e:
             print(e)
-            print('Couldn\'t delete all roles :(')
+            await ctx.send('Couldn\'t delete all roles :frowning:')
 
     @command(description='Gives the user the specified role')
     async def gimme(self, ctx, country):
@@ -62,6 +66,7 @@ class CountryRoles(Cog):
                 return
 
             await ctx.message.author.edit(roles=user_roles)
+            await ctx.send('Role updated! :slight_smile:')
         except Exception as e:
             print(e)
-            print('Couldn\'t assign role :(')
+            await ctx.send('Couldn\'t assign role :frowning:')
