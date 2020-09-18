@@ -69,7 +69,7 @@ class BotInfo(Cog):
             inline=True
         ).add_field(
             name=f'`{self.prefix}about` or `{self.prefix}stats`',
-            value='About Git the lines',
+            value='About Country Roles',
             inline=True
         ).add_field(
             name=f'`{self.prefix}invite`',
@@ -106,7 +106,7 @@ class BotInfo(Cog):
         """Sends a nice message when added to a new server"""
         embed = discord.Embed(
             title='Thanks for adding me to your server! :heart:',
-            description=f'To get started, simply type `{self.prefix}start` as an admin,'
+            description=f'To get started, simply type `{self.prefix}start` as an admin, '
                         + f'or type `{self.prefix}help` for a list of commands',
             colour=0x2ac99e
         ).add_field(
