@@ -1,7 +1,7 @@
 from random import randint
 
 import discord
-from discord.ext.commands import Cog, slash_command, has_permissions, check_any, is_owner, Context, CommandError, CommandInvokeError
+from discord.ext.commands import Cog, slash_command, has_permissions, CommandError, MissingPermissions
 from discord.utils import get
 
 from cogs.countries import COUNTRIES, FLAGS
@@ -13,12 +13,11 @@ class CountryRoles(Cog):
         self.bot = bot
 
     # add country roles to server - ADMINS ONLY
-    @slash_command(guild_ids=[1063836013736243301], description='Adds all country roles and sets up react messages')
-    @check_any(is_owner(), has_permissions(manage_guild=True))
-    # @has_permissions(administrator=True)
+    @slash_command(description='Adds all country roles and sets up react messages')
+    @has_permissions(administrator=True)
     async def start(self, ctx):
-        await ctx.respond('Adding roles...')
         try:
+            await ctx.respond('Adding roles...')
             guild = ctx.guild
             guild_roles = await guild.fetch_roles()
             for country in COUNTRIES:
@@ -35,9 +34,8 @@ class CountryRoles(Cog):
             await ctx.respond('Couldn\'t add all roles :frowning:')
 
     # delete country roles from server - ADMINS ONLY
-    @slash_command(guild_ids=[1063836013736243301], description='Deletes all previously added country roles')
-    @check_any(is_owner(), has_permissions(manage_guild=True))
-    # @has_permissions(administrator=True)
+    @slash_command(description='Deletes all previously added country roles')
+    @has_permissions(administrator=True)
     async def reset(self, ctx):
         await ctx.respond('Deleting roles...')
         try:
@@ -52,7 +50,7 @@ class CountryRoles(Cog):
             await ctx.respond('Couldn\'t delete all roles :frowning:')
 
     # add specified country to user
-    @slash_command(guild_Ids=[1063836013736243301], description='Gives the user the specified role')
+    @slash_command(description='Gives the user the specified role')
     async def gimme(self, ctx, country):
         guild = ctx.guild
         guild_roles = await guild.fetch_roles()
@@ -71,6 +69,6 @@ class CountryRoles(Cog):
             await ctx.respond('Couldn\'t assign role :frowning:')
 
     # cog error handling
-    async def cog_command_error(self, ctx: Context, error: CommandError):
-        if isinstance(error, CommandInvokeError):
-            await ctx.send('Sorry, an error has occured. Please try again.')
+    async def cog_command_error(self, ctx: discord.ApplicationContext, error: CommandError):
+        if isinstance(error, MissingPermissions):
+            await ctx.respond('You do not have the required permissions to run this command.')

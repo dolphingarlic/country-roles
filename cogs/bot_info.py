@@ -11,11 +11,11 @@ class BotInfo(Cog):
         self.start_time = datetime.now()
         self.prefix = '/'
 
-    @slash_command(guild_ids=[1063836013736243301], description='Sends the link to the bot\'s GitHub repo')
+    @slash_command(description='Sends the link to the bot\'s GitHub repo')
     async def source(self, ctx):
         await ctx.respond('https://github.com/dolphingarlic/country-roles')
 
-    @slash_command(guild_ids=[1063836013736243301], description='Sends information about the bot')
+    @slash_command(description='Sends information about the bot')
     async def about(self, ctx):
         info = await self.bot.application_info()
         embed = discord.Embed(
@@ -41,7 +41,7 @@ class BotInfo(Cog):
         ).set_footer(text=f'Made by {info.owner}')
         await ctx.respond(embed=embed)
 
-    @slash_command(guild_ids=[1063836013736243301], description='Sends a help message')
+    @slash_command(description='Sends a help message')
     async def help(self, ctx):
         embed = discord.Embed(
             title='Help',
@@ -82,11 +82,11 @@ class BotInfo(Cog):
         )
         await ctx.respond(embed=embed)
 
-    @slash_command(guild_ids=[1063836013736243301], description='Sends a bot invite link')
+    @slash_command(description='Sends a bot invite link')
     async def invite(self, ctx):
         await ctx.respond('Add your own bot invite link here')
 
-    @slash_command(guild_ids=[1063836013736243301], description='Checks latency')
+    @slash_command(description='Checks latency')
     async def ping(self, ctx):
         await ctx.respond(f'Pong; {round(self.bot.latency * 1000, 2)}ms')
 
