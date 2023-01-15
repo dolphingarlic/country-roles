@@ -1,8 +1,7 @@
-import os
 from datetime import datetime
 
 import discord
-from discord.ext.commands import Cog, command
+from discord.ext.commands import Cog, slash_command, Context, CommandError, CommandInvokeError
 
 
 class BotInfo(Cog):
@@ -10,19 +9,14 @@ class BotInfo(Cog):
         """Sets the cog's bot. Also sets a custom prefix for commands if defined in .env"""
         self.bot = bot
         self.start_time = datetime.now()
+        self.prefix = '/'
 
-        self.prefix = 'r!'
-        if 'BOT_PREFIX' in os.environ:
-            self.prefix = os.environ['BOT_PREFIX']
+    @slash_command(guild_ids=[1063836013736243301], description='Sends the link to the bot\'s GitHub repo')
+    async def source(self, ctx):
+        await ctx.respond('https://github.com/dolphingarlic/country-roles')
 
-    @command(aliases=['source'])
-    async def github(self, ctx):
-        """Sends the link to the bot's GitHub repo"""
-        await ctx.send('https://github.com/dolphingarlic/country-roles')
-
-    @command(aliases=['stats'])
+    @slash_command(guild_ids=[1063836013736243301], description='Sends information about the bot')
     async def about(self, ctx):
-        """Sends information about the bot"""
         info = await self.bot.application_info()
         embed = discord.Embed(
             title=f'{info.name}',
@@ -44,13 +38,11 @@ class BotInfo(Cog):
             name='Latency',
             value=f'{round(self.bot.latency * 1000, 2)}ms',
             inline=True
-        ).set_footer(text=f'Made by {info.owner}', icon_url=info.owner.avatar_url)
+        ).set_footer(text=f'Made by {info.owner}')
+        await ctx.respond(embed=embed)
 
-        await ctx.send(embed=embed)
-
-    @command()
+    @slash_command(guild_ids=[1063836013736243301], description='Sends a help message')
     async def help(self, ctx):
-        """Sends a help message"""
         embed = discord.Embed(
             title='Help',
             description='Country Roles manages roles.',
@@ -68,7 +60,7 @@ class BotInfo(Cog):
             value='Gives you the role specified by `<country>`. This can either be the name or the flag emoji',
             inline=True
         ).add_field(
-            name=f'`{self.prefix}about` or `{self.prefix}stats`',
+            name=f'`{self.prefix}about`',
             value='About Country Roles',
             inline=True
         ).add_field(
@@ -84,22 +76,19 @@ class BotInfo(Cog):
             value='Check the bot\'s latency',
             inline=True
         ).add_field(
-            name=f'`{self.prefix}github` or `{self.prefix}source`',
+            name=f'`{self.prefix}source`',
             value='Links to the bot\'s GitHub repo',
             inline=True
         )
+        await ctx.respond(embed=embed)
 
-        await ctx.send(embed=embed)
-
-    @command()
+    @slash_command(guild_ids=[1063836013736243301], description='Sends a bot invite link')
     async def invite(self, ctx):
-        """Sends a bot invite link"""
-        await ctx.send('https://discord.com/api/oauth2/authorize?client_id=731531625678241844&permissions=268437504&scope=bot')
+        await ctx.respond('Add your own bot invite link here')
 
-    @command()
+    @slash_command(guild_ids=[1063836013736243301], description='Checks latency')
     async def ping(self, ctx):
-        """Checks latency"""
-        await ctx.send(f'Pong; {round(self.bot.latency * 1000, 2)}ms')
+        await ctx.respond(f'Pong; {round(self.bot.latency * 1000, 2)}ms')
 
     @Cog.listener()
     async def on_guild_join(self, guild):
@@ -115,3 +104,8 @@ class BotInfo(Cog):
             inline=False
         )
         await guild.system_channel.send(embed=embed)
+
+    # cog error handling
+    async def cog_command_error(self, ctx: Context, error: CommandError):
+        if isinstance(error, CommandInvokeError):
+            await ctx.send('Sorry, an error has occured. Please try again.')
