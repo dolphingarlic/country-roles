@@ -11,10 +11,6 @@ class BotInfo(Cog):
         self.start_time = datetime.now()
         self.prefix = '/'
 
-    @slash_command(description='Sends the link to the bot\'s GitHub repo')
-    async def source(self, ctx):
-        await ctx.respond('https://github.com/dolphingarlic/country-roles')
-
     @slash_command(description='Sends information about the bot')
     async def about(self, ctx):
         info = await self.bot.application_info()
@@ -41,6 +37,7 @@ class BotInfo(Cog):
         ).set_footer(text=f'Made by {info.owner}')
         await ctx.respond(embed=embed)
 
+    #TODO update to reflect 'countries' and 'nearme'
     @slash_command(description='Sends a help message')
     async def help(self, ctx):
         embed = discord.Embed(
@@ -56,8 +53,16 @@ class BotInfo(Cog):
             value='Removes all country roles in this server. **Only admins can run this command**',
             inline=True
         ).add_field(
-            name=f'`{self.prefix}gimme <country>`',
+            name=f'`{self.prefix}country`',
             value='Gives you the role specified by `<country>`. This can either be the name or the flag emoji',
+            inline=True
+        ).add_field(
+            name=f'`{self.prefix}countries`',
+            value='Lists all the countries accepted by this bot',
+            inline=True
+        ).add_field(
+            name=f'`{self.prefix}nearme`',
+            value='All server members in your country, sent as a DM',
             inline=True
         ).add_field(
             name=f'`{self.prefix}about`',
@@ -89,6 +94,10 @@ class BotInfo(Cog):
     @slash_command(description='Checks latency')
     async def ping(self, ctx):
         await ctx.respond(f'Pong; {round(self.bot.latency * 1000, 2)}ms')
+
+    @slash_command(description='Sends the link to the bot\'s GitHub repo')
+    async def source(self, ctx):
+        await ctx.respond('https://github.com/TheRealOwenRees/country-roles')
 
     @Cog.listener()
     async def on_guild_join(self, guild):
