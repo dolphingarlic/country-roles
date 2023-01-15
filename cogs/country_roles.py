@@ -1,7 +1,7 @@
 from random import randint
 
 import discord
-from discord.ext.commands import Cog, command, has_permissions
+from discord.ext.commands import Cog, slash_command, has_permissions, CommandError, MissingPermissions
 from discord.utils import get
 
 from cogs.countries import COUNTRIES, FLAGS
@@ -12,11 +12,12 @@ class CountryRoles(Cog):
         """Initializes the cog's bot"""
         self.bot = bot
 
-    @command(description='Adds all country roles and sets up react messages')
+    # add country roles to server - ADMINS ONLY
+    @slash_command(description='Adds all country roles and sets up react messages')
     @has_permissions(administrator=True)
     async def start(self, ctx):
-        await ctx.send('Adding roles...')
         try:
+            await ctx.respond('Adding roles...')
             guild = ctx.guild
             guild_roles = await guild.fetch_roles()
             for country in COUNTRIES:
@@ -28,15 +29,15 @@ class CountryRoles(Cog):
                         hoist=True,
                         colour=discord.Colour(randint(0, 0xffffff))
                     )
-            await ctx.send('Roles added! :slight_smile:')
-        except Exception as e:
-            print(e)
-            await ctx.send('Couldn\'t add all roles :frowning:')
+            await ctx.respond('Roles added! :slight_smile:')
+        except discord.DiscordException:
+            await ctx.respond('Couldn\'t add all roles :frowning:')
 
-    @command(description='Deletes all previously added country roles')
+    # delete country roles from server - ADMINS ONLY
+    @slash_command(description='Deletes all previously added country roles')
     @has_permissions(administrator=True)
     async def reset(self, ctx):
-        await ctx.send('Deleting roles...')
+        await ctx.respond('Deleting roles...')
         try:
             guild = ctx.guild
             guild_roles = await guild.fetch_roles()
@@ -44,29 +45,30 @@ class CountryRoles(Cog):
                 lambda x: x.name in COUNTRIES, guild_roles)
             for role in added_country_roles:
                 await role.delete()
-            await ctx.send('Roles deleted! :slight_smile:')
-        except Exception as e:
-            print(e)
-            await ctx.send('Couldn\'t delete all roles :frowning:')
+            await ctx.respond('Roles deleted! :slight_smile:')
+        except discord.DiscordException:
+            await ctx.respond('Couldn\'t delete all roles :frowning:')
 
-    @command(description='Gives the user the specified role')
+    # add specified country to user
+    @slash_command(description='Gives the user the specified role')
     async def gimme(self, ctx, country):
-        try:
-            guild = ctx.guild
-            guild_roles = await guild.fetch_roles()
-            user_roles = list(
-                filter(lambda x: x.name not in COUNTRIES, ctx.message.author.roles))
+        guild = ctx.guild
+        guild_roles = await guild.fetch_roles()
+        user_roles = list(
+            filter(lambda x: x.name not in COUNTRIES, ctx.author.roles))
+        role = get(guild_roles, name=country)
+        if country in COUNTRIES and role is not None:
+            user_roles.append(role)
+            await ctx.author.edit(roles=user_roles)
+            await ctx.respond('Role updated! :slight_smile:')
+        elif country in FLAGS:
+            user_roles.append(get(guild_roles, name=FLAGS[country]))
+            await ctx.author.edit(roles=user_roles)
+            await ctx.respond('Role updated! :slight_smile:')
+        else:
+            await ctx.respond('Couldn\'t assign role :frowning:')
 
-            role = get(guild_roles, name=country)
-            if country in COUNTRIES and role is not None:
-                user_roles.append(role)
-            elif country in FLAGS:
-                user_roles.append(get(guild_roles, name=FLAGS[country]))
-            else:
-                return
-
-            await ctx.message.author.edit(roles=user_roles)
-            await ctx.send('Role updated! :slight_smile:')
-        except Exception as e:
-            print(e)
-            await ctx.send('Couldn\'t assign role :frowning:')
+    # cog error handling
+    async def cog_command_error(self, ctx: discord.ApplicationContext, error: CommandError):
+        if isinstance(error, MissingPermissions):
+            await ctx.respond('You do not have the required permissions to run this command.')
